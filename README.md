@@ -1,2 +1,14 @@
-# Ak-ll-Konvey-r-Band-Sistemi
-Tinkercad simülasyonunda Akıllı Konveyör Band Sistemi otomasyon projesi
+# Akıllı Konveyör Band Sistemi
+
+Bu proje konveyör band üzerinde nesne algılama ve otomatik kontrol sağlayan bir otomasyon sistemidir.
+
+## Kullanılan Teknolojiler
+- Arduino
+- Sensörler
+- Motor kontrol
+
+## Proje Amacı
+Endüstride konveyör sistemlerinin otomasyonunu göstermek.
+
+## Geliştirici
+Muhammed İbrahim Menekşe
