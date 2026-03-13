@@ -1,0 +1,185 @@
+// Akıllı Konveyör Bant Sistemi - Gelişmiş Veri İzleme Arayüzü (Dashboard)
+
+int kirmiziAdet = 0;
+int yesilAdet = 0;
+int maviAdet = 0;
+int toplamPaket = 0;
+
+// Renklerin RGB değerleri
+color redColor = color(255, 50, 50);
+color greenColor = color(50, 255, 50);
+color blueColor = color(50, 50, 255);
+
+// Bant durumu
+String bantDurumu = "BANT CALISIYOR";
+
+// Bar grafikleri için geçmiş veri (son 10 değer)
+int[] kirmiziGecmis = new int[10];
+int[] yesilGecmis = new int[10];
+int[] maviGecmis = new int[10];
+
+void setup() {
+  size(1000, 700); // Pencere boyutu (daha büyük ve geniş)
+  smooth();
+  noStroke(); // Genel olarak çizgileri kapat
+  textFont(createFont("Arial-Bold", 16)); // Daha okunaklı font
+}
+
+void draw() {
+  background(35, 35, 40); // Koyu endüstriyel arka plan
+  
+  // Üst panel başlığı
+  fill(50, 50, 55);
+  rect(0, 0, width, 100);
+  
+  fill(200, 200, 205);
+  textSize(32);
+  textAlign(CENTER);
+  text("AKILLI KONVEYÖR BANT SİSTEMİ - VERİ İZLEME ARAYÜZÜ", width/2, 60);
+
+  // Genel Durum Bilgileri
+  drawStatusPanel(50, 130, "TOPLAM PAKET", toplamPaket, color(255, 255, 100));
+  drawStatusPanel(375, 130, "SİSTEM DURUMU", bantDurumu, color(100, 255, 100));
+
+  // Renk Kartları ve Bar Grafikler
+  drawColorCard(50, 250, "KIRMIZI", kirmiziAdet, redColor, kirmiziGecmis);
+  drawColorCard(375, 250, "YEŞİL", yesilAdet, greenColor, yesilGecmis);
+  drawColorCard(700, 250, "MAVİ", maviAdet, blueColor, maviGecmis);
+  
+  // Alt kısım - Tuş Bilgisi
+  fill(150);
+  textSize(14);
+  textAlign(LEFT);
+  text("TUŞLAR: K=KIRMIZI, Y=YEŞİL, M=MAVİ, S=DURUM DEĞİŞTİR, R=SIFIRLA", 50, height - 30);
+}
+
+// Genel durum paneli çizme fonksiyonu
+void drawStatusPanel(int x, int y, String label, Object value, color labelColor) {
+  fill(50, 50, 55);
+  rect(x, y, 250, 80, 10); // Panel kutusu
+  
+  fill(labelColor);
+  textSize(18);
+  textAlign(LEFT);
+  text(label + ":", x + 20, y + 30);
+  
+  fill(255);
+  textSize(24);
+  textAlign(RIGHT);
+  text(value.toString(), x + 230, y + 60);
+}
+
+
+// Renk kartı ve bar grafik çizme fonksiyonu
+void drawColorCard(int x, int y, String label, int count, color c, int[] history) {
+  // Ana kart kutusu
+  fill(50, 50, 55);
+  rect(x, y, 250, 380, 10);
+  
+  // Renk etiketi ve sayım
+  fill(c);
+  textSize(22);
+  textAlign(LEFT);
+  text(label, x + 20, y + 40);
+  
+  fill(255);
+  textSize(48);
+  textAlign(RIGHT);
+  text(count, x + 230, y + 100);
+  
+  fill(150);
+  textSize(14);
+  textAlign(RIGHT);
+  text("ADET", x + 230, y + 120);
+
+  // RGB renk değerleri
+  textSize(14);
+  textAlign(LEFT);
+  String rgbText = "RGB: " + red(c) + " " + green(c) + " " + blue(c);
+  text(rgbText, x + 20, y + 70);
+  
+  // Bar grafik (geçmiş veriler)
+  drawBarGraph(x + 20, y + 150, 210, 200, c, history);
+}
+
+// Bar grafik çizme yardımcı fonksiyonu
+void drawBarGraph(int x, int y, int w, int h, color c, int[] data) {
+  fill(30, 30, 35); // Grafik arka planı
+  rect(x, y, w, h, 5);
+  
+  // Y ekseni çizgileri ve etiketleri
+  stroke(60);
+  line(x + 20, y + h, x + w, y + h); // Taban çizgisi
+  line(x + 20, y, x + 20, y + h); // Sol çizgi
+
+  fill(150);
+  textSize(10);
+  textAlign(RIGHT);
+  text("0", x + 15, y + h);
+  text("10", x + 15, y + 10); // Örnek Y ekseni değeri
+  
+  float barWidth = (float)(w - 30) / data.length;
+  float maxVal = 10; // Bar grafiğin maksimum yüksekliği (veri değerine göre ayarla)
+  
+  for (int i = 0; i < data.length; i++) {
+    float barHeight = map(data[i], 0, maxVal, 0, h - 20); // Veriyi yüksekliğe dönüştür
+    fill(c);
+    noStroke();
+    rect(x + 25 + i * barWidth, y + h - barHeight - 5, barWidth * 0.8, barHeight, 3);
+  }
+}
+
+
+// Klavye ile demo veri girişi
+void keyPressed() {
+  if (key == 'k' || key == 'K') { 
+    kirmiziAdet++;
+    toplamPaket++;
+    addToHistory(kirmiziGecmis, kirmiziAdet);
+    bantDurumu = "KIRMIZI PAKET ALGILANDI";
+  }
+  if (key == 'y' || key == 'Y') {
+    yesilAdet++;
+    toplamPaket++;
+    addToHistory(yesilGecmis, yesilAdet);
+    bantDurumu = "YEŞİL PAKET ALGILANDI";
+  }
+  if (key == 'm' || key == 'M') {
+    maviAdet++;
+    toplamPaket++;
+    addToHistory(maviGecmis, maviAdet);
+    bantDurumu = "MAVİ PAKET ALGILANDI";
+  }
+  if (key == 's' || key == 'S') {
+    if (bantDurumu.equals("BANT CALISIYOR")) {
+      bantDurumu = "RENK OKUNUYOR";
+    } else if (bantDurumu.equals("RENK OKUNUYOR")) {
+      bantDurumu = "PAKET AYIKLANIYOR";
+    } else {
+      bantDurumu = "BANT CALISIYOR";
+    }
+  }
+  if (key == 'r' || key == 'R') { // Sıfırlama
+    kirmiziAdet = 0;
+    yesilAdet = 0;
+    maviAdet = 0;
+    toplamPaket = 0;
+    bantDurumu = "BANT CALISIYOR";
+    // Geçmiş verileri de sıfırla
+    for(int i = 0; i < 10; i++) {
+      kirmiziGecmis[i] = 0;
+      yesilGecmis[i] = 0;
+      maviGecmis[i] = 0;
+    }
+  }
+}
+
+// Geçmiş veriye yeni değeri ekle (bar grafik için)
+void addToHistory(int[] historyArray, int newValue) {
+  // Eski değerleri sola kaydır
+  for (int i = 0; i < historyArray.length - 1; i++) {
+    historyArray[i] = historyArray[i+1];
+  }
+  // Yeni değeri en sona ekle
+  historyArray[historyArray.length - 1] = newValue;
+}
